@@ -465,13 +465,13 @@ function handleDownload() {
 
 function setupTheme() {
     const saved = loadFromLocalStorage(STORAGE_THEME_KEY);
-    const theme = saved || 'dark';
+    const theme = saved || 'light';
     document.documentElement.setAttribute('data-theme', theme);
     updateThemeIcon(theme);
 }
 
 function toggleTheme() {
-    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
     const next = current === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
     saveToLocalStorage(STORAGE_THEME_KEY, next);

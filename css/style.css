@@ -168,6 +168,17 @@ body::before {
   gap: var(--space-md);
 }
 
+.header a {
+  color: var(--color-text-primary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color var(--transition-fast);
+}
+
+.header a:hover {
+  color: var(--color-accent);
+}
+
 .header-brand {
   display: flex;
   align-items: center;
