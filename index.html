@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="AI-powered Face Shape Detector — Upload a photo or use your camera to instantly detect your face shape using advanced facial landmark analysis. 100% private, runs entirely in your browser.">
+    <meta name="keywords"
+        content="face shape detector, face shape analyzer, AI face analysis, oval round square heart diamond oblong face">
+    <meta name="author" content="Face Shape Detector">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="AI Face Shape Detector">
+    <meta property="og:description"
+        content="Detect your face shape instantly with AI — Oval, Round, Square, Heart, Diamond, or Oblong. 100% private, runs in your browser.">
+    <meta property="og:type" content="website">
+
+    <title>AI Face Shape Detector — Instant Face Shape Analysis</title>
+
+    <!-- Favicon -->
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- face-api.js from CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1/dist/face-api.js"></script>
+</head>
+
+<body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="spinner" role="status" aria-label="Loading AI models"></div>
+        <p id="loading-text" class="loading-text">Initializing AI models…</p>
+    </div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-brand">
+                <span class="header-logo" aria-hidden="true">🧠</span>
+                <div>
+                    <h1 class="header-title">Face Shape Detector</h1>
+                    <p class="header-subtitle">AI-Powered Facial Analysis</p>
+                </div>
+            </div>
+            <div style="display: flex;">
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">🌙</button>
+                <a href="https://faceshape.app" style="display: grid; align-content: center;">Faceshape AI</a>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <span class="status-dot" aria-hidden="true"></span>
+                <span id="status-message">Loading AI models…</span>
+            </div>
+
+            <!-- Error Message -->
+            <div id="error-message" class="error-message hidden" role="alert">
+                <span class="error-icon" aria-hidden="true">⚠️</span>
+                <span id="error-text" class="error-text"></span>
+                <button id="error-dismiss" class="error-dismiss" aria-label="Dismiss error">✕</button>
+            </div>
+
+            <!-- Upload Zone -->
+            <section id="upload-zone" class="upload-zone" aria-label="Image upload area">
+                <span class="upload-icon" aria-hidden="true">📸</span>
+                <h2 class="upload-title">Upload a photo or use your camera</h2>
+                <p class="upload-subtitle">Drag &amp; drop an image here, or use the buttons below</p>
+                <div class="upload-actions">
+                    <button id="upload-btn" class="btn btn-primary">
+                        <span class="btn-icon" aria-hidden="true">🖼️</span>
+                        Upload Image
+                    </button>
+                    <button id="camera-btn" class="btn btn-secondary">
+                        <span class="btn-icon" aria-hidden="true">📷</span>
+                        Use Camera
+                    </button>
+                </div>
+                <input id="file-input" type="file" accept="image/*" hidden aria-label="Select image file">
+            </section>
+
+            <!-- Display Section -->
+            <section id="display-section" class="display-section hidden" aria-label="Analysis display">
+                <div class="canvas-wrapper">
+                    <img id="source-image" src="" alt="Uploaded face image" class="hidden">
+                    <video id="source-video" autoplay playsinline muted class="hidden" aria-label="Camera feed"></video>
+                    <canvas id="overlay-canvas" aria-label="Facial landmark overlay"></canvas>
+                </div>
+
+                <div class="display-controls">
+                    <button id="capture-btn" class="btn btn-primary hidden">
+                        <span class="btn-icon" aria-hidden="true">📸</span>
+                        Capture
+                    </button>
+                    <button id="stop-camera-btn" class="btn btn-secondary hidden">
+                        <span class="btn-icon" aria-hidden="true">⏹️</span>
+                        Stop Camera
+                    </button>
+                    <button id="new-analysis-btn" class="btn btn-secondary hidden">
+                        <span class="btn-icon" aria-hidden="true">🔄</span>
+                        New Analysis
+                    </button>
+                    <button id="download-btn" class="btn btn-secondary hidden">
+                        <span class="btn-icon" aria-hidden="true">💾</span>
+                        Download
+                    </button>
+                </div>
+            </section>
+
+            <!-- Result Card -->
+            <section id="result-card" class="result-card hidden" aria-label="Analysis results">
+                <div class="result-header">
+                    <p class="result-label">Detected Face Shape</p>
+                    <h2 id="result-shape" class="result-shape"></h2>
+                </div>
+
+                <div class="confidence-section">
+                    <div class="confidence-header">
+                        <span class="confidence-label">Confidence</span>
+                        <span id="result-confidence" class="confidence-value"></span>
+                    </div>
+                    <div class="confidence-track">
+                        <div id="confidence-bar" class="confidence-bar"></div>
+                    </div>
+                </div>
+
+                <p id="result-description" class="result-description"></p>
+
+                <p class="ratios-section-title">Facial Ratios</p>
+                <div id="ratios-grid" class="ratios-grid"></div>
+            </section>
+
+            <!-- SEO Content Section -->
+            <article class="seo-section">
+                <h2>The Ultimate AI Face Shape Detector: Know Your Face Instantly</h2>
+                <p>Have you ever wondered, "What is my face shape?" Identifying your true face shape is the foundational
+                    step to unlocking your best look. Whether you are trying to find the perfect haircut, shopping for a
+                    new pair of glasses, or mastering your makeup contouring, knowing your facial structure changes
+                    everything. Our advanced <strong>AI Face Shape Detector</strong> takes the guesswork out of the
+                    equation. By meticulously analyzing your facial features, proportions, and landmarks, our tool
+                    accurately categorizes your face into one of the six primary shapes: Oval, Round, Square, Heart,
+                    Diamond, or Oblong.</p>
+
+                <p>Unlike manual measurement methods that require a tape measure and complex calculations, our online
+                    face shape analyzer provides instant, professional-grade results. Simply upload a photo or use your
+                    device's camera, and let our artificial intelligence do the heavy lifting in seconds.</p>
+
+                <h2>Why Knowing Your Face Shape Matters</h2>
+                <p>Understanding your face shape is much more than a fun trivia fact about yourself; it is a powerful
+                    styling tool used by professional stylists, barbers, opticians, and makeup artists worldwide. Here
+                    is why pinpointing your unique facial geometry is essential:</p>
+                <ul>
+                    <li><strong>Finding the Perfect Hairstyle:</strong> The right haircut can balance your features,
+                        highlight your eyes, and frame your face beautifully. Conversely, a mismatched style might
+                        accentuate areas you'd prefer to minimize. For example, round faces benefit from lengthening
+                        styles, while square faces look incredible with softening layers.</li>
+                    <li><strong>Choosing Glasses and Sunglasses:</strong> Frames that contrast with your face shape
+                        generally look best. If you have a soft, round face, angular frames add definition. If you have
+                        sharp, angular features, rounded frames bring balance. Our face shape finder helps you navigate
+                        the eyewear aisle with confidence.</li>
+                    <li><strong>Mastering Makeup and Contouring:</strong> Makeup is all about light and shadow. Knowing
+                        where to place your contour, blush, and highlight depends entirely on your bone structure. You
+                        can use makeup to create the illusion of cheekbones, soften a strong jawline, or shorten a
+                        longer face.</li>
+                    <li><strong>Selecting Hats and Accessories:</strong> Even your choice of hats, earrings, and
+                        necklines can be optimized to flatter your specific facial proportions.</li>
+                </ul>
+
+                <h2>The 6 Main Face Shapes Explained</h2>
+                <p>While every face is uniquely beautiful, most fall into one of six distinct categories. Our AI
+                    technology measures the width of your forehead, cheekbones, and jawline, as well as the overall
+                    length of your face, to determine your match.</p>
+
+                <h3>1. Oval Face Shape</h3>
+                <p>The oval face is often considered the most versatile due to its balanced proportions. The face is
+                    slightly longer than it is wide, and the cheekbones are the widest part, tapering gently down to a
+                    narrow, rounded jaw. <strong>Styling Tip:</strong> You can pull off almost any hairstyle or glasses
+                    frame! Avoid heavy bangs that might unintentionally shorten your face.</p>
+
+                <h3>2. Round Face Shape</h3>
+                <p>A round face has soft, curved lines with the width and length being relatively equal. The jawline is
+                    rounded, and the cheekbones are the widest point but are not particularly prominent. <strong>Styling
+                        Tip:</strong> Opt for hairstyles that add height and volume at the top to elongate the face.
+                    Angular, rectangular glasses frames work wonderfully to add structure and contrast to the soft
+                    curves.</p>
+
+                <h3>3. Square Face Shape</h3>
+                <p>Characterized by a strong, angular jawline, a square face has roughly the same width at the forehead,
+                    cheekbones, and jaw. The overall length and width are similar. <strong>Styling Tip:</strong> Soft,
+                    face-framing layers and side-swept bangs help soften the strong jawline. Round or oval glasses
+                    frames are ideal for balancing the sharp angles of the face.</p>
+
+                <h3>4. Heart Face Shape</h3>
+                <p>Heart-shaped faces, also known as inverted triangles, feature a wider forehead and prominent
+                    cheekbones that narrow down to a distinct, pointed chin. <strong>Styling Tip:</strong> Hairstyles
+                    that add volume at the jawline, like chin-length bobs, balance the face beautifully. Aviator or
+                    bottom-heavy glasses frames help draw the eye downward, balancing the wider forehead.</p>
+
+                <h3>5. Diamond Face Shape</h3>
+                <p>The diamond shape is angular and striking, featuring high, wide cheekbones, a narrow forehead, and a
+                    narrow, pointed chin. It is the rarest face shape. <strong>Styling Tip:</strong> Hairstyles that
+                    show off the cheekbones while adding fullness at the forehead and jawline are flattering. Try
+                    rimless or oval glasses to complement your dramatic bone structure.</p>
+
+                <h3>6. Oblong (Rectangle) Face Shape</h3>
+                <p>An oblong face is noticeably longer than it is wide. The forehead, cheeks, and jawline are similar in
+                    width, and the chin may have a slight curve. <strong>Styling Tip:</strong> Bangs are incredibly
+                    flattering on an oblong face as they visually shorten the length. Waves and curls add width. Go for
+                    oversized or tall glasses frames to break up the length of the face.</p>
+
+                <h2>How Our Privacy-First Technology Works</h2>
+                <p>We believe that your facial data is highly sensitive and belongs to you alone. That is why our Face
+                    Shape Detector is built with privacy at its core. <strong>Our tool runs 100% locally in your web
+                        browser.</strong> Whether you take a live photo or upload an image from your camera roll, the
+                    image never leaves your device. No data is sent to a server, and no photos are stored, saved, or
+                    shared.</p>
+                <p>We utilize the powerful <code>face-api.js</code> library to perform complex facial landmark detection
+                    directly on your machine. The AI maps dozens of key points across your eyebrows, eyes, nose, mouth,
+                    and jawline to calculate precise ratios and deliver your highly accurate face shape result.
+                    Experience state-of-the-art AI analysis without compromising your privacy.</p>
+
+                <h2>Frequently Asked Questions (FAQ)</h2>
+                <h3>Is this face shape analyzer really free and accurate?</h3>
+                <p>Yes, our tool is completely free to use. Our AI model has been trained on thousands of diverse faces
+                    to ensure high accuracy. It precisely identifies facial landmarks to calculate lengths and widths,
+                    offering a much more objective result than trying to measure your face yourself in a mirror.</p>
+
+                <h3>Can my face shape change over time?</h3>
+                <p>While your underlying bone structure remains the same, your perceived face shape can change slightly
+                    due to weight loss or gain, aging, or even different styling choices. However, your primary face
+                    shape classification generally remains consistent throughout your adult life.</p>
+
+                <h3>What if I look like a mix of two shapes?</h3>
+                <p>It is very common for people to have characteristics of two different face shapes (for example, a
+                    blend of Oval and Heart, or Square and Oblong). Our AI will determine your dominant shape based on
+                    the strongest mathematical ratios, but you can always borrow styling tips from your secondary shape
+                    for even more versatility.</p>
+            </article>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>🔒 100% private — all processing happens in your browser. No images are uploaded.</p>
+            <p>Powered by <a href="https://github.com/vladmandic/face-api" target="_blank"
+                    rel="noopener noreferrer">face-api.js</a></p>
+        </footer>
+    </div>
+
+    <!-- App Scripts (ES6 modules) -->
+    <script type="module" src="js/app.js"></script>
+</body>
+
+</html>
